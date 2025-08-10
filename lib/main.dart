@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'dart:io' show Platform;
 
 void main() {
   runApp(const PortfolioApp());
@@ -41,9 +43,12 @@ class PortfolioWebView extends StatefulWidget {
 
 class _PortfolioWebViewState extends State<PortfolioWebView> {
   bool _isLoading = true;
+  bool _hasError = false;
+  String _errorMessage = '';
   String _currentUrl = '';
+  WebViewController? _webViewController;
   
-  // 포트폴리오 웹사이트 URL (여기에 본인의 포트폴리오 URL을 입력하세요)
+  // 포트폴리오 웹사이트 URL
   static const String portfolioUrl = 'https://www.ycseng.com';
   
   @override
@@ -53,12 +58,72 @@ class _PortfolioWebViewState extends State<PortfolioWebView> {
   }
   
   Future<void> _loadSavedUrl() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedUrl = prefs.getString('portfolio_url') ?? portfolioUrl;
-    setState(() {
-      _currentUrl = savedUrl;
-      _isLoading = false;
-    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedUrl = prefs.getString('portfolio_url') ?? portfolioUrl;
+      setState(() {
+        _currentUrl = savedUrl;
+        _hasError = false;
+        _errorMessage = '';
+      });
+      
+      print('Initializing WebView with URL: $savedUrl');
+      
+      // WebView 컨트롤러 초기화
+      _webViewController = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..setNavigationDelegate(
+          NavigationDelegate(
+            onProgress: (int progress) {
+              print('Loading progress: $progress%');
+            },
+            onPageStarted: (String url) {
+              print('Page started loading: $url');
+              setState(() {
+                _isLoading = true;
+                _hasError = false;
+              });
+            },
+            onPageFinished: (String url) {
+              print('Page finished loading: $url');
+              setState(() {
+                _isLoading = false;
+              });
+            },
+            onWebResourceError: (WebResourceError error) {
+              print('WebView error: ${error.description}');
+              print('Error code: ${error.errorCode}');
+              setState(() {
+                _isLoading = false;
+                _hasError = true;
+                _errorMessage = 'Error: ${error.description} (Code: ${error.errorCode})';
+              });
+            },
+            onNavigationRequest: (NavigationRequest request) {
+              print('Navigation request: ${request.url}');
+              return NavigationDecision.navigate;
+            },
+          ),
+        );
+      
+      // macOS에서 추가 설정
+      if (Platform.isMacOS) {
+        _webViewController!.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+      }
+      
+      print('WebView controller created, loading URL...');
+      await _webViewController!.loadRequest(Uri.parse(_currentUrl));
+      print('URL load request completed');
+      
+    } catch (e) {
+      print('Error initializing WebView: $e');
+      print('Error type: ${e.runtimeType}');
+      setState(() {
+        _isLoading = false;
+        _hasError = true;
+        _errorMessage = 'Failed to load: $e';
+      });
+    }
   }
   
   Future<void> _launchExternalUrl(String url) async {
@@ -102,11 +167,24 @@ class _PortfolioWebViewState extends State<PortfolioWebView> {
     if (newUrl != null && newUrl.isNotEmpty) {
       setState(() {
         _currentUrl = newUrl;
+        _isLoading = true;
+        _hasError = false;
       });
       
       // URL을 SharedPreferences에 저장
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('portfolio_url', newUrl);
+      
+      // 새로운 URL로 웹뷰 로드
+      try {
+        await _webViewController!.loadRequest(Uri.parse(newUrl));
+      } catch (e) {
+        setState(() {
+          _isLoading = false;
+          _hasError = true;
+          _errorMessage = 'Failed to load new URL: $e';
+        });
+      }
     }
   }
 
@@ -114,9 +192,22 @@ class _PortfolioWebViewState extends State<PortfolioWebView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('포트폴리오'),
+        title: const Text('성연철 포트폴리오'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              if (_webViewController != null) {
+                setState(() {
+                  _isLoading = true;
+                  _hasError = false;
+                });
+                _webViewController!.reload();
+              }
+            },
+            tooltip: '새로고침',
+          ),
           IconButton(
             icon: const Icon(Icons.open_in_new),
             onPressed: () {
@@ -131,47 +222,63 @@ class _PortfolioWebViewState extends State<PortfolioWebView> {
           ),
         ],
       ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : Center(
+      body: Stack(
+        children: [
+          if (!_hasError && _webViewController != null)
+            WebViewWidget(controller: _webViewController!),
+          if (_hasError)
+            Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(
-                    Icons.web,
+                    Icons.error_outline,
                     size: 64,
-                    color: Colors.blue,
+                    color: Colors.red,
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    '포트폴리오 웹사이트',
+                    '웹뷰 로딩 오류',
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    _currentUrl,
+                    _errorMessage,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Colors.grey[600],
                     ),
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
                     onPressed: () {
-                      _launchExternalUrl(_currentUrl);
+                      if (_webViewController != null) {
+                        setState(() {
+                          _isLoading = true;
+                          _hasError = false;
+                        });
+                        _webViewController!.reload();
+                      }
                     },
-                    icon: const Icon(Icons.open_in_new),
-                    label: const Text('포트폴리오 열기'),
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('다시 시도'),
                   ),
                   const SizedBox(height: 16),
                   TextButton(
-                    onPressed: _updatePortfolioUrl,
-                    child: const Text('URL 변경'),
+                    onPressed: () {
+                      _launchExternalUrl(_currentUrl);
+                    },
+                    child: const Text('외부 브라우저에서 열기'),
                   ),
                 ],
               ),
             ),
+          if (_isLoading && !_hasError)
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+        ],
+      ),
     );
   }
 }

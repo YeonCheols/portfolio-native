@@ -28,5 +28,22 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
+		<true/>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSNetworkUsageDescription</key>
+	<string>This app needs network access to load the portfolio website.</string>
+	<key>NSAppSandboxEnabled</key>
+	<true/>
+	<key>NSAppSandboxNetworkClient</key>
+	<true/>
+	<key>NSAppSandboxNetworkServer</key>
+	<true/>
 </dict>
 </plist>
