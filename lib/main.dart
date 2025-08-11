@@ -72,6 +72,7 @@ class _PortfolioWebViewState extends State<PortfolioWebView> {
       // WebView 컨트롤러 초기화
       _webViewController = WebViewController()
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..setBackgroundColor(const Color(0x00000000))
         ..setNavigationDelegate(
           NavigationDelegate(
             onProgress: (int progress) {
