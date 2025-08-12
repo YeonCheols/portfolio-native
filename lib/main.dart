@@ -49,7 +49,7 @@ class _PortfolioWebViewState extends State<PortfolioWebView> {
   WebViewController? _webViewController;
   
   // 포트폴리오 웹사이트 URL
-  static const String portfolioUrl = 'https://www.ycseng.com';
+  static const String portfolioUrl = 'https://portfolio-yeon-cheols-projects.vercel.app/';
   
   @override
   void initState() {
@@ -72,7 +72,6 @@ class _PortfolioWebViewState extends State<PortfolioWebView> {
       // WebView 컨트롤러 초기화
       _webViewController = WebViewController()
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
-        ..setBackgroundColor(const Color(0x00000000))
         ..setNavigationDelegate(
           NavigationDelegate(
             onProgress: (int progress) {
@@ -94,11 +93,9 @@ class _PortfolioWebViewState extends State<PortfolioWebView> {
             onWebResourceError: (WebResourceError error) {
               print('WebView error: ${error.description}');
               print('Error code: ${error.errorCode}');
-              setState(() {
-                _isLoading = false;
-                _hasError = true;
-                _errorMessage = 'Error: ${error.description} (Code: ${error.errorCode})';
-              });
+              // 모든 오류 무시하고 계속 진행
+              print('Error ignored, continuing...');
+              return;
             },
             onNavigationRequest: (NavigationRequest request) {
               print('Navigation request: ${request.url}');
@@ -107,12 +104,18 @@ class _PortfolioWebViewState extends State<PortfolioWebView> {
           ),
         );
       
+      // iOS에서 추가 설정
+      if (Platform.isIOS) {
+        _webViewController!.setUserAgent('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1');
+      }
       // macOS에서 추가 설정
       if (Platform.isMacOS) {
         _webViewController!.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
       }
       
       print('WebView controller created, loading URL...');
+      
+      // URL 로드
       await _webViewController!.loadRequest(Uri.parse(_currentUrl));
       print('URL load request completed');
       
