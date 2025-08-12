@@ -5,6 +5,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:io' show Platform;
 
 void main() {
+  // Flutter 바인딩 초기화
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const PortfolioApp());
 }
 
@@ -41,7 +43,7 @@ class PortfolioWebView extends StatefulWidget {
   State<PortfolioWebView> createState() => _PortfolioWebViewState();
 }
 
-class _PortfolioWebViewState extends State<PortfolioWebView> {
+class _PortfolioWebViewState extends State<PortfolioWebView> with WidgetsBindingObserver {
   bool _isLoading = true;
   bool _hasError = false;
   String _errorMessage = '';
@@ -49,12 +51,53 @@ class _PortfolioWebViewState extends State<PortfolioWebView> {
   WebViewController? _webViewController;
   
   // 포트폴리오 웹사이트 URL
-  static const String portfolioUrl = 'https://portfolio-yeon-cheols-projects.vercel.app/';
+  static const String portfolioUrl = 'https://www.ycseng.com';
   
   @override
   void initState() {
     super.initState();
+    // 앱 생명주기 관찰자 등록
+    WidgetsBinding.instance.addObserver(this);
     _loadSavedUrl();
+  }
+
+  @override
+  void dispose() {
+    // 앱 생명주기 관찰자 해제
+    WidgetsBinding.instance.removeObserver(this);
+    // WebView 컨트롤러 정리
+    _webViewController?.clearCache();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    switch (state) {
+      case AppLifecycleState.paused:
+        // 앱이 백그라운드로 갈 때
+        print('App paused - cleaning up WebView');
+        _webViewController?.clearCache();
+        break;
+      case AppLifecycleState.detached:
+        // 앱이 완전히 종료될 때
+        print('App detached - final cleanup');
+        _webViewController?.clearCache();
+        break;
+      case AppLifecycleState.resumed:
+        // 앱이 포그라운드로 돌아올 때
+        print('App resumed');
+        break;
+      case AppLifecycleState.inactive:
+        // 앱이 비활성화될 때
+        print('App inactive');
+        break;
+      case AppLifecycleState.hidden:
+        // 앱이 숨겨질 때
+        print('App hidden');
+        break;
+    }
   }
   
   Future<void> _loadSavedUrl() async {
