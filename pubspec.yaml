@@ -43,6 +43,7 @@ dependencies:
 
   # WebView for displaying web content
   webview_flutter: ^4.7.0
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -97,3 +98,30 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# Flutter Launcher Icons configuration
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  # 다크모드 아이콘 설정 - 이미지 축소 및 다크 배경
+  adaptive_icon_background: "#0a0a0a" # 더 어두운 배경으로 변경
+  adaptive_icon_foreground: "assets/icon/app_icon.png" # Android adaptive icon foreground
+  # 아이콘 크기 조정 (더 작게)
+  image_path_android: "assets/icon/app_icon.png"
+  image_path_ios: "assets/icon/app_icon.png"
+  # Android adaptive icon 설정 - 이미지를 더 작게
+  adaptive_icon_padding: true
+  web:
+    generate: true
+    image_path: "assets/icon/app_icon.png"
+    background_color: "#1a1a1a"
+    theme_color: "#1a1a1a"
+  windows:
+    generate: true
+    image_path: "assets/icon/app_icon.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/icon/app_icon.png"

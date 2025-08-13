@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>포트폴리오 앱 아이콘 미리보기</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: #f5f5f5;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .icon-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 30px;
+        margin-bottom: 30px;
+      }
+      .icon-item {
+        text-align: center;
+        padding: 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background: #fafafa;
+      }
+      .icon-item h3 {
+        margin: 0 0 15px 0;
+        color: #555;
+      }
+      .icon-preview {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 10px;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+      .dark-mode {
+        background: #1a1a1a;
+        color: white;
+      }
+      .dark-mode .icon-item {
+        background: #2a2a2a;
+        border-color: #444;
+      }
+      .dark-mode h1 {
+        color: white;
+      }
+      .dark-mode h3 {
+        color: #ccc;
+      }
+      .toggle-btn {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        background: #007aff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .toggle-btn:hover {
+        background: #0056cc;
+      }
+    </style>
+  </head>
+  <body>
+    <button class="toggle-btn" onclick="toggleDarkMode()">다크모드 토글</button>
+    <div class="container">
+      <h1>📱 포트폴리오 앱 아이콘 미리보기</h1>
+
+      <div class="icon-grid">
+        <div class="icon-item">
+          <h3>Android 아이콘</h3>
+          <img
+            src="../android/app/src/main/res/mipmap-hdpi/launcher_icon.png"
+            alt="Android Icon"
+            class="icon-preview"
+          />
+          <p>72x72px</p>
+        </div>
+
+        <div class="icon-item">
+          <h3>웹 아이콘 (192px)</h3>
+          <img
+            src="../web/icons/Icon-192.png"
+            alt="Web Icon 192"
+            class="icon-preview"
+          />
+          <p>192x192px</p>
+        </div>
+
+        <div class="icon-item">
+          <h3>웹 아이콘 (512px)</h3>
+          <img
+            src="../web/icons/Icon-512.png"
+            alt="Web Icon 512"
+            class="icon-preview"
+          />
+          <p>512x512px</p>
+        </div>
+
+        <div class="icon-item">
+          <h3>iOS 아이콘</h3>
+          <img
+            src="../ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@2x.png"
+            alt="iOS Icon"
+            class="icon-preview"
+          />
+          <p>120x120px</p>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 30px">
+        <p style="color: #666">
+          💡 아이콘이 너무 크다면 원본 이미지를 수정하거나 설정을 조정할 수
+          있습니다.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+      }
+    </script>
+  </body>
+</html>
