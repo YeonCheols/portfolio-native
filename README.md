@@ -1,6 +1,8 @@
 # Portfolio Native App
 
-Flutter로 개발된 포트폴리오 웹뷰 앱입니다.
+Flutter로 개발된 포트폴리오 앱입니다.
+
+TO-BE 안드로이드 진행중..
 
 ## 🚀 빠른 시작
 
